@@ -1584,19 +1584,21 @@ function renderWishes(arr){
 let loaded = false;
 function loadWishes(){
   if(loaded) return;
-  if(!GS_URL){
-    renderWishes(readLocal());
-    loaded = true;
+  // Khi đã cấu hình Google Sheets: CHỈ hiển thị từ Sheets (xóa trên Sheets là biến mất)
+  if(GS_URL){
+    fetch(GS_URL).then(r => r.json()).then(wishes => {
+      renderWishes(wishes || []);
+      loaded = true;
+    }).catch(() => {
+      // Nếu lỗi mạng, chỉ hiện local của lượt gửi mới (chưa kịp đồng bộ)
+      renderWishes(readLocal());
+      loaded = true;
+    });
     return;
   }
-  fetch(GS_URL).then(r => r.json()).then(wishes => {
-    const local = readLocal();
-    renderWishes([...(wishes || []), ...local]);
-    loaded = true;
-  }).catch(() => {
-    renderWishes(readLocal());
-    loaded = true;
-  });
+  // Khi chưa có Google Sheets: dùng local làm fallback (hỗ trợ test offline)
+  renderWishes(readLocal());
+  loaded = true;
 }
 // Tải sổ lưu bút khi cuộn tới
 const wbObs = new IntersectionObserver((entries) => {
@@ -1634,13 +1636,9 @@ function sendWish(){
   status.className = 'wf-status';
   status.textContent = '';
 
-  // Lưu local trước
   const entry = { name, msg, time: new Date().toISOString() };
-  const local = readLocal();
-  local.push(entry);
-  writeLocal(local);
 
-  // Hiển thị ngay lên list
+  // Hiển thị ngay lên list (optimistic UI)
   if(wishesList.querySelector('.wl-empty') || wishesList.querySelector('.wl-loading')){
     wishesList.innerHTML = '';
   }
@@ -1650,14 +1648,20 @@ function sendWish(){
               + '<div class="wc-author">' + esc(name) + '</div>';
   wishesList.insertBefore(d, wishesList.firstChild);
 
-  // Gửi lên Sheets
   if(GS_URL){
+    // Có Google Sheets: chỉ gửi lên Sheets, KHÔNG lưu local
+    // → xóa trên Sheets là xóa khỏi mọi nơi
     fetch(GS_URL, {
       method:'POST',
       mode:'no-cors',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({name:name, msg:msg})
     }).catch(() => {});
+  } else {
+    // Chưa có Google Sheets: lưu local làm fallback
+    const local = readLocal();
+    local.push(entry);
+    writeLocal(local);
   }
 
   document.getElementById('wName').value = '';
