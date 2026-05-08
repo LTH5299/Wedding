@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Thiệp Cưới — Tuấn Anh & Thanh Huyền</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════
+   VARIABLES
+═══════════════════════════════════ */
+:root {
+  --burgundy:       #6B0F2A;
+  --burgundy-deep:  #3A0613;
+  --burgundy-mid:   #52091F;
+  --gold:           #C9A84C;
+  --gold-light:     #E4D5A0;
+  --gold-shine:     #F5E6B8;
+  --cream:          #FDF8F0;
+  --cream-dark:     #F0E6D6;
+  --blush:          #F2D7D5;
+  --rose:           #D4878F;
+  --text-dark:      #2C1810;
+  --text-muted:     #6B5A4E;
+
+  /* Phong bì — burgundy cùng họ với bên trong, sáp vàng đồng cổ điển */
+  --env-bg:         #5e0d22;     /* mặt phong bì burgundy đậm */
+  --env-bg-dk:      #3e0716;     /* các mặt tối hơn (cánh, đáy) */
+  --env-shadow:     #200410;     /* bóng sâu */
+  --wax-gold:       #c89548;     /* sáp đồng vàng */
+  --wax-gold-dk:    #8a5d22;     /* sáp đồng tối */
+  --wax-gold-hi:    #f0c878;     /* highlight */
+
+  --ff-display: 'Playfair Display', 'Georgia', serif;
+  --ff-script:  'Great Vibes', cursive;
+  --ff-body:    'Cormorant Garamond', 'Georgia', serif;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  font-family:var(--ff-body);color:var(--text-dark);
+  background:var(--cream);overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+
+/* ═══════════════════════════════════
+   PETALS (canvas)
+═══════════════════════════════════ */
+#petals{position:fixed;inset:0;pointer-events:none;z-index:9998}
+
+/* ═══════════════════════════════════
+   PHONG BÌ MỞ - màn hình bao phủ
+═══════════════════════════════════ */
+.envelope-screen{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:
+    radial-gradient(ellipse at 50% 35%, #4a0818 0%, #1a020a 75%, #0a0006 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  overflow:hidden;
+  transition:opacity 1s ease 1.2s, visibility 0s linear 2.2s;
+}
+.envelope-screen.opened{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+/* Ánh sáng nến vàng ấm xa mờ làm nền (thay cho lá xanh) */
+.envelope-screen::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(201,168,76,.10) 0, transparent 35%),
+    radial-gradient(circle at 82% 78%, rgba(201,168,76,.08) 0, transparent 35%),
+    radial-gradient(circle at 50% 90%, rgba(107,15,42,.4) 0, transparent 40%);
+  pointer-events:none;
+}
+
+/* Phong bì */
+.envelope{
+  position:relative;
+  width:min(420px, 90vw);
+  aspect-ratio: 1.5 / 1;
+  perspective:2000px;
+  transform-style:preserve-3d;
+  cursor:pointer;
+  filter:drop-shadow(0 30px 60px rgba(0,0,0,.5));
+}
+
+/* Thân phong bì (mặt sau dưới đáy) */
+.env-back{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(135deg, var(--env-bg) 0%, var(--env-bg-dk) 100%);
+  border-radius:4px;
+  box-shadow:
+    inset 0 0 60px rgba(0,0,0,.35),
+    inset 0 0 0 1px rgba(0,0,0,.2);
+}
+.env-back::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.4 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  opacity:.3;
+  mix-blend-mode:multiply;
+  border-radius:4px;
+}
+
+/* Hai cánh trái phải tạo hình tam giác (kiểu phong bì truyền thống) */
+.env-side{
+  position:absolute;
+  width:50%;
+  height:100%;
+  top:0;
+  background:
+    linear-gradient(135deg, var(--env-bg) 0%, var(--env-bg-dk) 100%);
+  z-index:3;
+}
+.env-side.left{
+  left:0;
+  clip-path:polygon(0 0, 100% 50%, 0 100%);
+  box-shadow:inset -4px 0 8px rgba(0,0,0,.25);
+}
+.env-side.right{
+  right:0;
+  clip-path:polygon(100% 0, 0 50%, 100% 100%);
+  box-shadow:inset 4px 0 8px rgba(0,0,0,.25);
+}
+
+/* Đáy phong bì (tam giác hướng lên từ dưới) */
+.env-bottom{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  height:50%;
+  background:
+    linear-gradient(180deg, var(--env-bg-dk) 0%, var(--env-shadow) 100%);
+  clip-path:polygon(0 100%, 50% 0, 100% 100%);
+  z-index:4;
+  box-shadow:inset 0 -4px 8px rgba(0,0,0,.35);
+}
+
+/* Lá thư bên trong — ẩn dưới flap khi đóng, trồi lên khi mở */
+.env-letter{
+  position:absolute;
+  top:6%;
+  left:6%;
+  right:6%;
+  bottom:6%;
+  background:linear-gradient(180deg, #FFFDF7 0%, #FFF8EE 100%);
+  z-index:1;  /* nằm dưới flap, side, bottom */
+  border:1px solid rgba(201,168,76,.3);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+  text-align:center;
+  transition:transform 1.2s cubic-bezier(.4,0,.2,1) .8s, opacity .6s ease 1.2s;
+  box-shadow:
+    inset 0 0 0 5px rgba(255,253,247,.85),
+    inset 0 0 0 6px rgba(201,168,76,.25);
+  opacity:0;
+}
+.envelope.opened .env-letter{
+  transform:translateY(-110%) scale(1.04);
+  opacity:1;
+  z-index:6;  /* lên trên cùng khi đã trồi */
+}
+
+.letter-orn{
+  margin-bottom:10px;
+  color:var(--gold);
+  font-size:18px;
+}
+.letter-pre{
+  font-family:var(--ff-body);
+  font-size:10px;
+  letter-spacing:.4em;
+  text-transform:uppercase;
+  color:var(--gold);
+  font-weight:600;
+  margin-bottom:8px;
+}
+.letter-names{
+  font-family:var(--ff-script);
+  font-size:38px;
+  color:var(--burgundy);
+  line-height:1;
+  margin:4px 0;
+}
+.letter-amp{
+  font-family:var(--ff-display);
+  font-size:14px;
+  font-style:italic;
+  color:var(--gold);
+  letter-spacing:.4em;
+  margin:2px 0;
+}
+.letter-date{
+  margin-top:10px;
+  font-family:var(--ff-body);
+  font-size:11px;
+  letter-spacing:.4em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  font-weight:600;
+}
+
+/* Cánh trên (flap) — đóng/mở */
+.env-flap{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:50%;
+  background:
+    linear-gradient(180deg, var(--env-bg) 0%, var(--env-bg-dk) 100%);
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  transform-origin:top center;
+  transition:transform 1s cubic-bezier(.4,0,.2,1);
+  z-index:5;
+  box-shadow:
+    inset 0 4px 8px rgba(255,255,255,.04),
+    0 4px 12px rgba(0,0,0,.3);
+}
+.env-flap::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.3 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  opacity:.3;
+  mix-blend-mode:multiply;
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+}
+.envelope.opened .env-flap{
+  transform:rotateX(-180deg);
+  z-index:1;
+}
+
+/* Sáp vàng đồng (wax seal) — ở vị trí mép flap gặp đáy (chính giữa phong bì) */
+.wax-seal{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:84px;
+  height:84px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 30%, var(--wax-gold-hi) 0%, var(--wax-gold) 35%, var(--wax-gold-dk) 80%);
+  z-index:7;  /* trên flap (5) khi đóng */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:
+    0 6px 18px rgba(0,0,0,.55),
+    0 0 24px rgba(201,168,76,.25),
+    inset 0 0 0 1px rgba(0,0,0,.25),
+    inset -2px -2px 8px rgba(0,0,0,.3),
+    inset 2px 2px 8px rgba(255,255,255,.25);
+  transition:transform .8s cubic-bezier(.4,0,.2,1), opacity .6s ease;
+  cursor:pointer;
+}
+.wax-seal::before{
+  content:'';
+  position:absolute;
+  inset:4px;
+  border-radius:50%;
+  border:1px dashed rgba(58,6,19,.35);
+}
+.wax-seal::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.25 0'/></filter><rect width='100' height='100' filter='url(%23n)'/></svg>");
+  opacity:.4;
+  mix-blend-mode:multiply;
+}
+.wax-seal-mono{
+  font-family:var(--ff-script);
+  font-size:34px;
+  color:var(--burgundy-deep);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.25),
+    0 -1px 1px rgba(0,0,0,.2);
+  font-weight:400;
+  position:relative;
+  z-index:1;
+}
+.envelope.opened .wax-seal{
+  transform:translate(-50%, -50%) scale(.7) rotate(-25deg);
+  opacity:0;
+}
+
+/* Hint */
+.env-hint{
+  position:absolute;
+  bottom:8%;
+  left:0;right:0;
+  text-align:center;
+  font-family:var(--ff-body);
+  font-size:11px;
+  letter-spacing:.4em;
+  text-transform:uppercase;
+  color:var(--gold-light);
+  opacity:.7;
+  animation:hintPulse 2s ease-in-out infinite;
+  pointer-events:none;
+}
+.envelope.opened ~ .env-hint{ opacity:0; }
+@keyframes hintPulse{
+  0%,100%{opacity:.5;transform:translateY(0);}
+  50%   {opacity:1;transform:translateY(3px);}
+}
+
+/* Vài chiếc lá xanh rải rác xung quanh phong bì */
+.env-leaves{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+}
+.env-leaf{
+  position:absolute;
+  opacity:.7;
+}
+
+/* ═══════════════════════════════════
+   MUSIC BUTTON
+═══════════════════════════════════ */
+.music-btn{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  z-index:10000;
+  width:50px;height:50px;
+  border-radius:50%;
+  border:2px solid var(--gold);
+  background:rgba(58,6,19,.85);
+  backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.music-btn:hover{background:var(--gold);transform:scale(1.08);}
+.music-btn:hover .bar{background:var(--burgundy-deep);}
+.music-btn .bar{
+  display:inline-block;
+  width:3px;margin:0 1px;
+  background:var(--gold);
+  border-radius:2px;
+  transition:background .3s;
+}
+.music-btn .bar:nth-child(1){height:8px;}
+.music-btn .bar:nth-child(2){height:14px;}
+.music-btn .bar:nth-child(3){height:10px;}
+.music-btn .bar:nth-child(4){height:16px;}
+.music-btn.playing .bar{animation:eqBar .6s ease infinite alternate;}
+.music-btn.playing .bar:nth-child(1){animation-delay:0s;}
+.music-btn.playing .bar:nth-child(2){animation-delay:.15s;}
+.music-btn.playing .bar:nth-child(3){animation-delay:.3s;}
+.music-btn.playing .bar:nth-child(4){animation-delay:.1s;}
+@keyframes eqBar{0%{height:4px}100%{height:18px}}
+@media(max-width:768px){
+  .music-btn{bottom:16px;right:16px;width:46px;height:46px;}
+}
+
+/* ═══════════════════════════════════
+   NAV (cố định trên cùng)
+═══════════════════════════════════ */
+.nav{
+  position:fixed;top:0;left:0;right:0;
+  z-index:1000;
+  padding:14px 16px;
+  display:flex;justify-content:center;gap:24px;
+  background:linear-gradient(180deg,rgba(58,6,19,.92) 0%,transparent 100%);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .8s ease 2s;
+}
+body.opened .nav{
+  opacity:1;
+  pointer-events:auto;
+}
+.nav a{
+  font-family:var(--ff-body);
+  font-size:12px;font-weight:700;
+  letter-spacing:.25em;text-transform:uppercase;
+  color:var(--gold-light);
+  text-decoration:none;
+  transition:color .3s;
+}
+.nav a:hover{color:#fff;}
+@media(max-width:600px){
+  .nav{gap:10px;padding:10px 8px;flex-wrap:wrap;}
+  .nav a{font-size:10.5px;letter-spacing:.18em;}
+}
+
+/* ═══════════════════════════════════
+   APP CONTENT
+═══════════════════════════════════ */
+.app{
+  opacity:0;
+  transition:opacity 1s ease 1.6s;
+}
+body.opened .app{ opacity:1; }
+
+/* Section utilities */
+.s-divider{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;margin-bottom:14px;
+}
+.s-divider .rl{
+  width:46px;height:1px;
+  background:var(--gold);opacity:.45;
+}
+.s-divider .orn{
+  color:var(--gold);font-size:14px;
+}
+.s-eyebrow{
+  font-family:var(--ff-body);
+  font-size:12px;font-weight:700;
+  letter-spacing:.5em;text-transform:uppercase;
+  color:var(--gold);
+  text-align:center;
+  margin-bottom:8px;
+}
+.s-title{
+  font-family:var(--ff-display);
+  font-size:clamp(26px,6vw,38px);
+  font-weight:700;
+  color:var(--burgundy);
+  text-align:center;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+.s-sub{
+  font-family:var(--ff-body);
+  font-size:18px;
+  font-style:italic;
+  color:var(--text-muted);
+  text-align:center;
+  margin-bottom:38px;
+  font-weight:400;
+}
+
+.reveal{
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1);
+}
+.reveal.vis{opacity:1;transform:translateY(0);}
+
+/* ═══════════════════════════════════
+   HERO
+═══════════════════════════════════ */
+.hero{
+  position:relative;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  overflow:hidden;
+  padding:80px 22px 60px;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(107,15,42,.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 65%, rgba(201,168,76,.08) 0%, transparent 50%),
+    linear-gradient(170deg, var(--burgundy-deep) 0%, var(--burgundy-mid) 35%, var(--burgundy) 60%, #3A0613 100%);
+}
+.hero-bg::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0L80 40L40 80L0 40z' fill='none' stroke='%23C9A84C' stroke-width='.25' opacity='.06'/%3E%3C/svg%3E");
+}
+.hero-frame{
+  position:absolute;inset:18px;
+  border:1px solid rgba(201,168,76,.18);
+  pointer-events:none;
+  z-index:1;
+}
+.hero-ct{
+  position:relative;
+  z-index:2;
+  max-width:480px;
+  width:100%;
+}
+
+/* Ảnh tròn */
+.hero-photo{
+  width:170px;height:170px;
+  border-radius:50%;
+  border:3px solid var(--gold);
+  box-shadow:
+    0 0 0 8px rgba(201,168,76,.12),
+    0 16px 50px rgba(0,0,0,.35);
+  object-fit:cover;
+  margin:0 auto 22px;
+  display:block;
+}
+.hero-ph{
+  width:170px;height:170px;
+  border-radius:50%;
+  border:3px solid var(--gold);
+  box-shadow:
+    0 0 0 8px rgba(201,168,76,.12),
+    0 16px 50px rgba(0,0,0,.35);
+  margin:0 auto 22px;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  background:rgba(201,168,76,.06);
+}
+.hero-ph svg{ opacity:.55; }
+.hero-ph small{
+  font-size:9px;
+  color:var(--gold-light);
+  letter-spacing:.3em;
+  font-family:var(--ff-body);
+  text-transform:uppercase;
+  margin-top:6px;
+}
+
+.hero-pre{
+  font-family:var(--ff-body);
+  font-size:16px;
+  font-weight:400;font-style:italic;
+  letter-spacing:.4em;
+  color:var(--gold-light);
+  margin-bottom:14px;
+  text-transform:lowercase;
+}
+.hero-name{
+  font-family:var(--ff-script);
+  font-size:clamp(48px,12vw,88px);
+  color:var(--gold-shine);
+  line-height:1.05;
+  display:block;
+  text-shadow:
+    0 0 60px rgba(201,168,76,.25),
+    0 4px 20px rgba(0,0,0,.25);
+}
+.hero-amp{
+  font-family:var(--ff-display);
+  font-size:clamp(20px,4vw,32px);
+  color:var(--gold);
+  display:block;
+  margin:4px 0;
+  letter-spacing:.4em;
+  font-style:italic;
+}
+.hero-tag{
+  font-family:var(--ff-display);
+  font-size:13px;
+  letter-spacing:.6em;
+  text-transform:uppercase;
+  color:var(--gold-light);
+  margin-top:22px;
+  font-weight:500;
+}
+.hero-dt{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;
+  margin-top:18px;
+}
+.hero-dt span{
+  font-family:var(--ff-display);
+  font-size:clamp(16px,3vw,20px);
+  color:var(--gold);
+  letter-spacing:.28em;
+  font-weight:600;
+}
+.hero-dt .ln{
+  width:36px;height:1px;
+  background:var(--gold);opacity:.4;
+}
+
+.hero-scroll{
+  position:absolute;bottom:28px;
+  left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;
+  gap:6px;
+}
+.hero-scroll span{
+  font-family:var(--ff-body);
+  font-size:9px;
+  letter-spacing:.4em;
+  color:var(--gold-light);
+  text-transform:uppercase;
+}
+.hero-scroll-bar{
+  width:1px;height:32px;
+  background:var(--gold);
+  opacity:.4;
+  animation:scrollBar 2s ease infinite;
+}
+@keyframes scrollBar{
+  0%,100%{transform:scaleY(1);opacity:.4;}
+  50%   {transform:scaleY(.4);opacity:.15;}
+}
+
+/* Particles vàng nhỏ trên hero */
+.gp{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.gp span{
+  position:absolute;width:3px;height:3px;
+  background:var(--gold);
+  border-radius:50%;opacity:0;
+  animation:fp 7s ease-in-out infinite;
+}
+.gp span:nth-child(1){left:8%; animation-delay:0s;  }
+.gp span:nth-child(2){left:22%;animation-delay:1.8s;}
+.gp span:nth-child(3){left:42%;animation-delay:3.2s;}
+.gp span:nth-child(4){left:62%;animation-delay:.6s; }
+.gp span:nth-child(5){left:78%;animation-delay:2.4s;}
+.gp span:nth-child(6){left:93%;animation-delay:4.2s;}
+@keyframes fp{
+  0%  {bottom:-10px;opacity:0;transform:scale(0);}
+  20% {opacity:.7;transform:scale(1);}
+  80% {opacity:.3;}
+  100%{bottom:100%;opacity:0;transform:scale(.2) translateX(20px);}
+}
+
+/* ═══════════════════════════════════
+   GREETING
+═══════════════════════════════════ */
+.greeting{
+  padding:80px 20px;
+  background:
+    linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 50%, var(--cream) 100%);
+  text-align:center;
+}
+.g-card{
+  max-width:580px;margin:0 auto;
+  background:#fff;
+  border:1px solid rgba(201,168,76,.22);
+  padding:42px 32px;
+  box-shadow:0 14px 50px rgba(44,24,16,.07);
+  position:relative;
+}
+.g-card::before, .g-card::after{
+  content:'';position:absolute;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg, var(--burgundy), var(--gold), var(--burgundy));
+}
+.g-card::before{top:0;}
+.g-card::after {bottom:0;}
+
+.g-orn{margin-bottom:18px;display:flex;justify-content:center;}
+.g-orn svg{width:64px;height:auto;}
+
+.g-text{
+  font-family:var(--ff-body);
+  font-size:19px;line-height:2;
+  color:var(--text-dark);
+  font-weight:500;
+  letter-spacing:.01em;
+}
+
+.g-couple{
+  margin:22px 0;
+  padding:20px 0;
+  border-top:1px solid rgba(201,168,76,.15);
+  border-bottom:1px solid rgba(201,168,76,.15);
+}
+.g-role{
+  font-family:var(--ff-body);
+  font-size:12px;font-weight:700;
+  letter-spacing:.45em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+.g-name{
+  font-family:var(--ff-script);
+  font-size:42px;
+  color:var(--burgundy);
+  line-height:1.1;
+  margin-bottom:4px;
+}
+.g-full{
+  font-family:var(--ff-body);
+  font-size:18px;
+  color:var(--text-dark);
+  font-weight:600;
+  letter-spacing:.08em;
+}
+.g-amp{
+  font-family:var(--ff-display);
+  font-size:22px;
+  color:var(--gold);
+  margin:18px 0;
+  letter-spacing:.5em;
+  font-style:italic;
+  font-weight:500;
+}
+
+.g-close{
+  font-family:var(--ff-body);
+  font-size:18px;font-style:italic;
+  color:var(--text-dark);
+  font-weight:400;
+  line-height:1.85;
+  margin-top:14px;
+}
+
+.g-fams{
+  display:flex;gap:0;
+  margin-top:26px;
+  border-top:1px solid rgba(201,168,76,.18);
+  padding-top:22px;
+}
+.g-fam{flex:1;text-align:center;padding:0 10px;}
+.g-fam + .g-fam{border-left:1px solid rgba(201,168,76,.18);}
+.g-fam-label{
+  font-family:var(--ff-body);
+  font-size:11px;font-weight:700;
+  letter-spacing:.4em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+.g-fam-names{
+  font-family:var(--ff-body);
+  font-size:17px;
+  color:var(--text-dark);
+  font-weight:600;
+  line-height:1.7;
+  letter-spacing:.02em;
+}
+
+@media(max-width:560px){
+  .g-card{padding:30px 20px;}
+  .g-fams{flex-direction:column;gap:20px;padding-top:20px;}
+  .g-fam + .g-fam{
+    border-left:none;
+    border-top:1px solid rgba(201,168,76,.18);
+    padding-top:20px;
+  }
+  .g-name{font-size:28px;}
+}
+
+/* ═══════════════════════════════════
+   EVENT (ticket)
+═══════════════════════════════════ */
+.events{
+  padding:80px 20px;
+  background:var(--burgundy-deep);
+  position:relative;overflow:hidden;
+}
+.events::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='.8' fill='%23C9A84C' opacity='.05'/%3E%3C/svg%3E");
+}
+.events .s-eyebrow{color:var(--gold-light);}
+.events .s-title{color:var(--gold-shine);}
+.events .s-sub{color:var(--gold-light);}
+
+.ticket{
+  max-width:460px;
+  margin:0 auto;
+  background:linear-gradient(135deg, #FFFDF7, #FFF8EE);
+  border:2px solid var(--gold);
+  padding:38px 30px;
+  position:relative;
+  text-align:center;
+  box-shadow:0 22px 60px rgba(0,0,0,.4);
+  z-index:1;
+}
+.ticket::before, .ticket::after{
+  content:'';
+  position:absolute;
+  width:20px;height:20px;
+  background:var(--burgundy-deep);
+  border-radius:50%;
+  border:2px solid var(--gold);
+  top:50%;
+  transform:translateY(-50%);
+}
+.ticket::before{left:-12px;}
+.ticket::after {right:-12px;}
+
+.t-label{
+  font-family:var(--ff-body);
+  font-size:11px;font-weight:700;
+  letter-spacing:.55em;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.t-icon{
+  margin-bottom:14px;
+  display:flex;justify-content:center;
+}
+.t-icon svg{width:54px;height:auto;}
+.t-title{
+  font-family:var(--ff-display);
+  font-size:26px;font-weight:700;
+  color:var(--burgundy);
+  margin-bottom:20px;
+  letter-spacing:.18em;
+}
+.t-info{
+  font-size:18px;
+  line-height:2.1;
+  color:var(--text-dark);
+  font-weight:500;
+}
+.t-info strong{
+  color:var(--burgundy);
+  font-weight:700;
+  letter-spacing:.02em;
+}
+.t-footer{
+  margin-top:22px;padding-top:18px;
+  border-top:1px dashed var(--gold);
+  font-family:var(--ff-body);
+  font-size:11px;font-weight:700;
+  letter-spacing:.45em;
+  color:var(--gold);
+  text-transform:uppercase;
+}
+
+.map-link{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:16px;
+  padding:11px 26px;
+  border:1px solid var(--gold);
+  font-family:var(--ff-body);
+  font-size:13px;font-weight:700;
+  letter-spacing:.3em;
+  color:var(--gold);
+  text-decoration:none;
+  text-transform:uppercase;
+  transition:all .3s;
+}
+.map-link:hover{
+  background:var(--gold);
+  color:var(--burgundy-deep);
+}
+.map-link svg{width:14px;height:14px;fill:currentColor;}
+
+/* ═══════════════════════════════════
+   COUNTDOWN
+═══════════════════════════════════ */
+.cd-sec{
+  padding:80px 20px;
+  text-align:center;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(107,15,42,.04) 0%, transparent 60%),
+    var(--cream);
+}
+.cd-label{
+  font-family:var(--ff-script);
+  font-size:clamp(30px,6vw,46px);
+  color:var(--burgundy);
+  margin-bottom:38px;
+  line-height:1.1;
+}
+.cd-grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:12px;
+  max-width:520px;
+  margin:0 auto;
+}
+.cd-box{
+  text-align:center;
+  padding:20px 8px;
+  border:1px solid rgba(201,168,76,.28);
+  background:#fff;
+  box-shadow:0 8px 26px rgba(44,24,16,.06);
+  position:relative;
+}
+.cd-box::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg, var(--burgundy), var(--gold));
+}
+.cd-num{
+  font-family:var(--ff-display);
+  font-size:clamp(32px,8vw,46px);
+  font-weight:700;
+  color:var(--burgundy);
+  line-height:1;
+  margin-bottom:8px;
+}
+.cd-lbl{
+  font-family:var(--ff-body);
+  font-size:11px;font-weight:700;
+  letter-spacing:.4em;
+  color:var(--gold);
+  text-transform:uppercase;
+}
+
+/* ═══════════════════════════════════
+   WISHBOOK
+═══════════════════════════════════ */
+.wb{
+  padding:80px 20px;
+  background:var(--burgundy-deep);
+  position:relative;
+}
+.wb::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 30% 80%, rgba(201,168,76,.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 20%, rgba(201,168,76,.03) 0%, transparent 50%);
+}
+.wb .s-eyebrow{color:var(--gold-light);}
+.wb .s-title{color:var(--gold-shine);}
+.wb .s-sub{color:var(--gold-light);}
+
+.wb-inner{
+  max-width:540px;
+  margin:0 auto;
+  position:relative;z-index:1;
+}
+.wl{
+  max-height:340px;
+  overflow-y:auto;
+  margin-bottom:30px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(201,168,76,.25) transparent;
+  padding-right:4px;
+}
+.wl::-webkit-scrollbar{width:3px;}
+.wl::-webkit-scrollbar-thumb{background:rgba(201,168,76,.25);border-radius:2px;}
+
+.wc{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(201,168,76,.12);
+  padding:16px 20px;
+  margin-bottom:10px;
+  position:relative;
+  animation:fu .5s ease;
+}
+.wc::before{
+  content:'\201C';
+  position:absolute;top:6px;left:8px;
+  font-family:var(--ff-script);
+  font-size:30px;
+  color:var(--gold);
+  opacity:.22;
+  line-height:1;
+}
+.wc-text{
+  font-family:var(--ff-body);
+  font-size:17px;
+  color:var(--cream);
+  font-style:italic;
+  font-weight:400;
+  line-height:1.7;
+  padding-left:18px;
+}
+.wc-author{
+  font-family:var(--ff-body);
+  font-size:14px;
+  color:var(--gold-light);
+  font-weight:600;
+  margin-top:8px;
+  padding-left:18px;
+  letter-spacing:.06em;
+}
+.wc-author::before{content:'— ';}
+.wl-empty{
+  text-align:center;
+  padding:28px 14px;
+  font-family:var(--ff-body);
+  font-size:14px;
+  color:rgba(255,248,238,.3);
+  font-style:italic;
+}
+.wl-loading{
+  text-align:center;
+  padding:18px;
+  font-family:var(--ff-body);
+  font-size:13px;
+  color:var(--gold-light);
+  font-style:italic;
+}
+
+.wf{display:flex;flex-direction:column;gap:14px;}
+.wf input, .wf textarea{
+  width:100%;
+  padding:14px 18px;
+  border:1px solid rgba(201,168,76,.28);
+  background:rgba(255,255,255,.04);
+  color:var(--cream);
+  font-family:var(--ff-body);
+  font-size:16px;
+  font-weight:400;
+  outline:none;
+  transition:all .4s;
+  -webkit-appearance:none;
+}
+.wf input:focus, .wf textarea:focus{
+  border-color:var(--gold);
+  background:rgba(255,255,255,.07);
+  box-shadow:0 0 0 3px rgba(201,168,76,.08);
+}
+.wf input::placeholder, .wf textarea::placeholder{
+  color:rgba(255,248,238,.28);
+  font-style:italic;
+}
+.wf textarea{
+  min-height:84px;
+  resize:vertical;
+  font-style:italic;
+}
+.wf-btn{
+  align-self:center;
+  padding:15px 38px;
+  border:2px solid var(--gold);
+  background:transparent;
+  color:var(--gold);
+  font-family:var(--ff-body);
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:.45em;
+  text-transform:uppercase;
+  position:relative;
+  overflow:hidden;
+  transition:all .5s cubic-bezier(.22,1,.36,1);
+  cursor:pointer;
+}
+.wf-btn::before{
+  content:'';
+  position:absolute;inset:0;
+  background:var(--gold);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .5s cubic-bezier(.22,1,.36,1);
+  z-index:0;
+}
+.wf-btn:hover::before{transform:scaleX(1);}
+.wf-btn:hover{
+  color:var(--burgundy-deep);
+  box-shadow:0 0 30px rgba(201,168,76,.25);
+}
+.wf-btn:disabled{ opacity:.6; cursor:wait; }
+.wf-btn span{position:relative;z-index:1;}
+.wf-status{
+  text-align:center;
+  font-family:var(--ff-body);
+  font-style:italic;
+  font-size:12px;
+  min-height:18px;
+  color:var(--gold-light);
+  margin-top:6px;
+}
+.wf-status.error{ color:#e98b8b; }
+
+/* ═══════════════════════════════════
+   FOOTER
+═══════════════════════════════════ */
+.footer{
+  padding:46px 20px;
+  text-align:center;
+  background:var(--burgundy-deep);
+  border-top:1px solid rgba(201,168,76,.1);
+}
+.footer-orn{
+  margin-bottom:14px;
+  color:var(--gold);
+  font-size:18px;
+}
+.footer-nm{
+  font-family:var(--ff-script);
+  font-size:clamp(28px,5vw,44px);
+  color:var(--gold-shine);
+  margin-bottom:8px;
+  line-height:1.05;
+}
+.footer-tx{
+  font-family:var(--ff-body);
+  font-size:16px;
+  color:var(--gold-light);
+  font-weight:400;
+  font-style:italic;
+}
+
+@keyframes fu{
+  from{opacity:0;transform:translateY(20px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+
+/* Responsive nhỏ hơn */
+@media(max-width:380px){
+  .envelope{aspect-ratio:1.45/1;}
+  .wax-seal{width:72px;height:72px;}
+  .wax-seal-mono{font-size:30px;}
+  .letter-names{font-size:32px;}
+  .hero-photo, .hero-ph{width:150px;height:150px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="petals"></canvas>
+
+<!-- ═══════════════════════════════════
+     PHONG BÌ XANH RÊU + SÁP ĐỎ
+═══════════════════════════════════ -->
+<div class="envelope-screen" id="envScreen">
+
+  <div class="envelope" id="envelope">
+    <!-- Mặt sau phong bì -->
+    <div class="env-back"></div>
+
+    <!-- Lá thư bên trong (hiện ra khi mở) -->
+    <div class="env-letter">
+      <div class="letter-orn">❦</div>
+      <div class="letter-pre">Save the Date</div>
+      <div class="letter-names">Tuấn Anh</div>
+      <div class="letter-amp">&</div>
+      <div class="letter-names">Thanh Huyền</div>
+      <div class="letter-date">26 · 05 · 2026</div>
+    </div>
+
+    <!-- Hai cánh bên -->
+    <div class="env-side left"></div>
+    <div class="env-side right"></div>
+
+    <!-- Đáy phong bì -->
+    <div class="env-bottom"></div>
+
+    <!-- Cánh trên (đậy) -->
+    <div class="env-flap"></div>
+
+    <!-- Sáp đỏ ở giữa -->
+    <div class="wax-seal">
+      <span class="wax-seal-mono">T &amp; H</span>
+    </div>
+  </div>
+
+  <div class="env-hint" id="envHint">Chạm vào sáp để mở thiệp</div>
+
+</div>
+
+<!-- ═══════════════════════════════════
+     MUSIC
+═══════════════════════════════════ -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="wedding.mp3" type="audio/mpeg"/>
+</audio>
+<button class="music-btn" id="musicBtn" title="Bật/Tắt nhạc" aria-label="Bật/tắt nhạc">
+  <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+</button>
+
+<!-- ═══════════════════════════════════
+     NAV
+═══════════════════════════════════ -->
+<nav class="nav">
+  <a href="#hero">Trang chủ</a>
+  <a href="#greeting">Lời mời</a>
+  <a href="#events">Lễ cưới</a>
+  <a href="#countdown">Ngày cưới</a>
+  <a href="#wishbook">Lời chúc</a>
+</nav>
+
+<!-- ═══════════════════════════════════
+     APP CONTENT
+═══════════════════════════════════ -->
+<div class="app" id="app">
+
+  <!-- ───── HERO ───── -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-frame"></div>
+    <div class="gp"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+    <div class="hero-ct">
+      <!-- ★ ẢNH CƯỚI: bỏ comment <img>, xoá khối hero-ph, thay src ★ -->
+      <!-- <img class="hero-photo" src="anh-cuoi.jpg" alt="Tuấn Anh & Thanh Huyền"/> -->
+      <div class="hero-ph">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#E4D5A0" stroke-width="1.2">
+          <rect x="3" y="5" width="18" height="14" rx="1"/>
+          <circle cx="9" cy="11" r="2"/>
+          <path d="M21 15l-5-5L5 19"/>
+        </svg>
+        <small>Ảnh cưới</small>
+      </div>
+
+      <p class="hero-pre">— trân trọng kính mời —</p>
+
+      <span class="hero-name">Tuấn Anh</span>
+      <span class="hero-amp">&amp;</span>
+      <span class="hero-name">Thanh Huyền</span>
+
+      <p class="hero-tag">We Are Getting Married</p>
+
+      <div class="hero-dt">
+        <div class="ln"></div>
+        <span>26 · 05 · 2026</span>
+        <div class="ln"></div>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <span>Cuộn xuống</span>
+      <div class="hero-scroll-bar"></div>
+    </div>
+  </section>
+
+  <!-- ───── LỜI MỜI ───── -->
+  <section class="greeting" id="greeting">
+    <div class="s-divider"><div class="rl"></div><div class="orn">❦</div><div class="rl"></div></div>
+    <div class="s-eyebrow">Wedding Invitation</div>
+    <h2 class="s-title">Lời mời</h2>
+
+    <div class="g-card reveal">
+      <div class="g-orn">
+        <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg">
+          <path d="M60 8C52 8 44 16 44 24C44 36 60 48 60 48C60 48 76 36 76 24C76 16 68 8 60 8Z" fill="none" stroke="#C9A84C" stroke-width="1.2"/>
+          <path d="M60 14C55 14 50 19 50 24C50 32 60 42 60 42C60 42 70 32 70 24C70 19 65 14 60 14Z" fill="none" stroke="#6B0F2A" stroke-width=".8" opacity=".5"/>
+          <line x1="10" y1="30" x2="40" y2="30" stroke="#C9A84C" stroke-width=".5" opacity=".4"/>
+          <line x1="80" y1="30" x2="110" y2="30" stroke="#C9A84C" stroke-width=".5" opacity=".4"/>
+          <circle cx="10" cy="30" r="1.2" fill="#C9A84C" opacity=".4"/>
+          <circle cx="110" cy="30" r="1.2" fill="#C9A84C" opacity=".4"/>
+        </svg>
+      </div>
+
+      <div class="g-text">
+        Trong niềm hân hoan của ngày trọng đại,<br/>
+        gia đình chúng tôi trân trọng kính báo<br/>
+        và mời quý khách đến chung vui<br/>
+        cùng lễ thành hôn của hai con:
+      </div>
+
+      <div class="g-couple">
+        <div class="g-role">Chú rể</div>
+        <div class="g-name">Tuấn Anh</div>
+        <div class="g-full">Lê Tuấn Anh</div>
+        <div class="g-amp">&amp;</div>
+        <div class="g-role">Cô dâu</div>
+        <div class="g-name">Thanh Huyền</div>
+        <div class="g-full">Nguyễn Thị Thanh Huyền</div>
+      </div>
+
+      <div class="g-close">
+        Sự hiện diện của quý khách là niềm vinh hạnh<br/>
+        và là lời chúc phúc ý nghĩa nhất<br/>
+        cho gia đình chúng tôi.
+      </div>
+
+      <div class="g-fams">
+        <div class="g-fam">
+          <div class="g-fam-label">Nhà trai</div>
+          <div class="g-fam-names">Ông Lê Văn Thùy<br/>Bà Lê Thị Hà</div>
+        </div>
+        <div class="g-fam">
+          <div class="g-fam-label">Nhà gái</div>
+          <div class="g-fam-names">Ông Nguyễn Thành Chung<br/>Bà Nguyễn Thị Tuyền</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── LỄ CƯỚI ───── -->
+  <section class="events" id="events">
+    <div class="s-divider"><div class="rl" style="background:var(--gold-light)"></div><div class="orn" style="color:var(--gold-light)">❦</div><div class="rl" style="background:var(--gold-light)"></div></div>
+    <div class="s-eyebrow">The Wedding</div>
+    <h2 class="s-title">Lễ Thành Hôn</h2>
+    <p class="s-sub">Trân trọng kính mời quý khách đến dự bữa tiệc chung vui</p>
+
+    <div class="ticket reveal">
+      <div class="t-label">Thiệp mời</div>
+      <div class="t-icon">
+        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="32" cy="40" rx="16" ry="16" fill="none" stroke="#C9A84C" stroke-width="1.1"/>
+          <ellipse cx="48" cy="40" rx="16" ry="16" fill="none" stroke="#6B0F2A" stroke-width="1.1"/>
+          <path d="M40 12L43 17 40 22 37 17Z" fill="none" stroke="#C9A84C" stroke-width=".7"/>
+          <path d="M40 13.5L42 17 40 20.5 38 17Z" fill="#C9A84C" opacity=".12"/>
+          <line x1="40" y1="6" x2="40" y2="10" stroke="#C9A84C" stroke-width=".5" opacity=".5"/>
+          <line x1="22" y1="62" x2="58" y2="62" stroke="#C9A84C" stroke-width=".4" opacity=".25"/>
+        </svg>
+      </div>
+      <h3 class="t-title">Lễ Cưới</h3>
+      <div class="t-info">
+        <strong>Thời gian:</strong> 17:00 — Thứ Ba<br/>
+        <strong>Ngày:</strong> 26 / 05 / 2026<br/>
+        <strong>Tại:</strong> Nhà hàng Phương Nam — Koruna<br/>
+        <strong>Địa chỉ:</strong> QL 18A, Khu 1, P. Yên Thanh,<br/>TP. Uông Bí, Quảng Ninh
+      </div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Nh%C3%A0%20h%C3%A0ng%20Ph%C6%B0%C6%A1ng%20Nam%20Koruna%20U%C3%B4ng%20B%C3%AD%20Qu%E1%BA%A3ng%20Ninh" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        Xem bản đồ
+      </a>
+      <div class="t-footer">Kính mời quý khách đến dự</div>
+    </div>
+  </section>
+
+  <!-- ───── COUNTDOWN ───── -->
+  <section class="cd-sec" id="countdown">
+    <div class="s-divider"><div class="rl"></div><div class="orn">❦</div><div class="rl"></div></div>
+    <div class="s-eyebrow">Save the Date</div>
+    <h2 class="cd-label">Đếm ngược đến ngày trọng đại...</h2>
+
+    <div class="cd-grid reveal">
+      <div class="cd-box"><div class="cd-num" id="cdD">00</div><div class="cd-lbl">Ngày</div></div>
+      <div class="cd-box"><div class="cd-num" id="cdH">00</div><div class="cd-lbl">Giờ</div></div>
+      <div class="cd-box"><div class="cd-num" id="cdM">00</div><div class="cd-lbl">Phút</div></div>
+      <div class="cd-box"><div class="cd-num" id="cdS">00</div><div class="cd-lbl">Giây</div></div>
+    </div>
+  </section>
+
+  <!-- ───── WISHBOOK ───── -->
+  <section class="wb" id="wishbook">
+    <div class="s-divider"><div class="rl" style="background:var(--gold-light)"></div><div class="orn" style="color:var(--gold-light)">❦</div><div class="rl" style="background:var(--gold-light)"></div></div>
+    <div class="s-eyebrow">Guestbook</div>
+    <h2 class="s-title">Sổ Lưu Bút</h2>
+    <p class="s-sub">Gửi lời chúc phúc đến cô dâu chú rể</p>
+
+    <div class="wb-inner">
+      <div class="wl" id="wishesList">
+        <div class="wl-loading" id="wishesLoading">Đang tải lời chúc...</div>
+      </div>
+
+      <div class="wf">
+        <input type="text" placeholder="Tên của bạn..." id="wName" maxlength="50"/>
+        <textarea placeholder="Viết lời chúc phúc..." id="wMsg" maxlength="300"></textarea>
+        <button class="wf-btn" type="button" onclick="sendWish()" id="wBtn"><span>Gửi lời chúc ♥</span></button>
+        <div class="wf-status" id="wStatus"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── FOOTER ───── -->
+  <footer class="footer">
+    <div class="footer-orn">❦</div>
+    <div class="footer-nm">Tuấn Anh & Thanh Huyền</div>
+    <p class="footer-tx">26 · 05 · 2026 — Mãi bên nhau ♥</p>
+  </footer>
+
+</div><!-- /.app -->
+
+<!-- ═══════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════ -->
+<script>
+/* ───────────────────────────────────
+   1. PHONG BÌ — mở khi chạm sáp đỏ
+─────────────────────────────────── */
+const envScreen = document.getElementById('envScreen');
+const envelope  = document.getElementById('envelope');
+const envHint   = document.getElementById('envHint');
+const body      = document.body;
+let opened = false;
+
+body.style.overflow = 'hidden';
+
+function openEnvelope(){
+  if(opened) return;
+  opened = true;
+
+  // Phát nhạc NGAY tại thao tác chạm (lách autoplay block)
+  startMusic();
+
+  envelope.classList.add('opened');
+  if(envHint) envHint.style.opacity = '0';
+
+  // Sau 1.4s thì ẩn phong bì + cho phép cuộn
+  setTimeout(() => {
+    envScreen.classList.add('opened');
+    body.classList.add('opened');
+    body.style.overflow = '';
+  }, 1400);
+}
+
+envelope.addEventListener('click', openEnvelope);
+document.addEventListener('keydown', e => {
+  if(!opened && (e.key === 'Enter' || e.key === ' ')) openEnvelope();
+});
+
+/* ───────────────────────────────────
+   2. CÁNH HOA RƠI (canvas)
+─────────────────────────────────── */
+(function(){
+  const canvas = document.getElementById('petals');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const colors = ['#D4878F','#F2D7D5','#C9A84C','#E4D5A0','#8B1A3A'];
+  const N = window.innerWidth < 768 ? 14 : 26;
+  const petals = [];
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function Petal(){ this.reset(true); }
+  Petal.prototype.reset = function(initial){
+    this.x = Math.random() * W;
+    this.y = initial ? Math.random() * -H : -20;
+    this.size = 5 + Math.random() * 9;
+    this.sy = .4 + Math.random() * 1;
+    this.sx = -.3 + Math.random() * .6;
+    this.angle = Math.random() * Math.PI * 2;
+    this.spin = (Math.random() - .5) * .03;
+    this.opacity = .25 + Math.random() * .45;
+    this.color = colors[Math.floor(Math.random() * colors.length)];
+    this.wave = Math.random() * Math.PI * 2;
+    this.waveSpeed = .02 + Math.random() * .02;
+  };
+  Petal.prototype.update = function(){
+    this.y += this.sy;
+    this.wave += this.waveSpeed;
+    this.x += this.sx + Math.sin(this.wave) * .5;
+    this.angle += this.spin;
+    if(this.y > H + 20) this.reset(false);
+  };
+  Petal.prototype.draw = function(){
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(this.size/2, -this.size/2, this.size, this.size/4, 0, this.size);
+    ctx.bezierCurveTo(-this.size, this.size/4, -this.size/2, -this.size/2, 0, 0);
+    ctx.fill();
+    ctx.restore();
+  };
+
+  for(let i = 0; i < N; i++) petals.push(new Petal());
+
+  (function animate(){
+    ctx.clearRect(0, 0, W, H);
+    petals.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  })();
+})();
+
+/* ───────────────────────────────────
+   3. SCROLL REVEAL
+─────────────────────────────────── */
+(function(){
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        e.target.classList.add('vis');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold:.12, rootMargin:'0px 0px -40px 0px' });
+  els.forEach(el => obs.observe(el));
+})();
+
+/* ───────────────────────────────────
+   4. COUNTDOWN — 26/05/2026 17:00
+─────────────────────────────────── */
+(function(){
+  const wd = new Date('2026-05-26T17:00:00+07:00').getTime();
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function update(){
+    let d = wd - Date.now();
+    if(d < 0) d = 0;
+    document.getElementById('cdD').textContent = pad(Math.floor(d/86400000));
+    document.getElementById('cdH').textContent = pad(Math.floor(d%86400000/3600000));
+    document.getElementById('cdM').textContent = pad(Math.floor(d%3600000/60000));
+    document.getElementById('cdS').textContent = pad(Math.floor(d%60000/1000));
+  }
+  update();
+  setInterval(update, 1000);
+})();
+
+/* ───────────────────────────────────
+   5. MUSIC
+─────────────────────────────────── */
+const bgMusic = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let musicPlaying = false;
+bgMusic.volume = 0.4;
+
+function startMusic(){
+  if(musicPlaying) return;
+  bgMusic.play().then(() => {
+    musicPlaying = true;
+    musicBtn.classList.add('playing');
+  }).catch(() => {});
+}
+
+musicBtn.addEventListener('click', () => {
+  if(musicPlaying){
+    bgMusic.pause();
+    musicPlaying = false;
+    musicBtn.classList.remove('playing');
+  } else {
+    bgMusic.play().then(() => {
+      musicPlaying = true;
+      musicBtn.classList.add('playing');
+    }).catch(() => {});
+  }
+});
+
+/* ───────────────────────────────────
+   6. SỔ LƯU BÚT — Google Sheets
+   ───────────────────────────────────
+   THIẾT LẬP:
+   1. Tạo Google Sheets, hàng đầu: Thời gian | Tên | Lời chúc
+   2. Extensions → Apps Script → dán:
+
+      function doPost(e){
+        var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+        var data = JSON.parse(e.postData.contents);
+        sheet.appendRow([new Date().toLocaleString('vi-VN'), data.name, data.msg]);
+        return ContentService.createTextOutput(JSON.stringify({ok:true}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      function doGet(){
+        var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+        var data = sheet.getDataRange().getValues();
+        var wishes = [];
+        for(var i = 1; i < data.length; i++){
+          wishes.push({name:data[i][1], msg:data[i][2]});
+        }
+        return ContentService.createTextOutput(JSON.stringify(wishes))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+
+   3. Deploy → New deployment → Web app → Anyone → Copy URL
+   4. Dán URL vào biến GS_URL bên dưới
+─────────────────────────────────── */
+const GS_URL = 'https://script.google.com/macros/s/AKfycbwUSWpQ_alnpX-inWVjwwgMN7BJtmeu-F_-0f1mQnXd0_i9bVPoF-NYHKy6NPvaWqdY/exec';
+const LOCAL_KEY = 'wedding_wishes_v5';
+
+function readLocal(){
+  try{ return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function writeLocal(arr){
+  try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(arr)); }catch(e){}
+}
+function esc(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+const wishesList    = document.getElementById('wishesList');
+const wishesLoading = document.getElementById('wishesLoading');
+
+function renderWishes(arr){
+  wishesList.innerHTML = '';
+  if(!arr || !arr.length){
+    wishesList.innerHTML = '<div class="wl-empty">Hãy là người đầu tiên gửi lời chúc ♥</div>';
+    return;
+  }
+  // mới nhất lên đầu
+  const sorted = [...arr].reverse();
+  sorted.forEach(w => {
+    if(!w.name || !w.msg) return;
+    const d = document.createElement('div');
+    d.className = 'wc';
+    d.innerHTML = '<div class="wc-text">' + esc(w.msg) + '</div>'
+                + '<div class="wc-author">' + esc(w.name) + '</div>';
+    wishesList.appendChild(d);
+  });
+}
+
+let loaded = false;
+function loadWishes(){
+  if(loaded) return;
+  if(!GS_URL){
+    renderWishes(readLocal());
+    loaded = true;
+    return;
+  }
+  fetch(GS_URL).then(r => r.json()).then(wishes => {
+    const local = readLocal();
+    renderWishes([...(wishes || []), ...local]);
+    loaded = true;
+  }).catch(() => {
+    renderWishes(readLocal());
+    loaded = true;
+  });
+}
+// Tải sổ lưu bút khi cuộn tới
+const wbObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      loadWishes();
+      wbObs.disconnect();
+    }
+  });
+}, { threshold:.1 });
+wbObs.observe(document.getElementById('wishbook'));
+
+function sendWish(){
+  const name = document.getElementById('wName').value.trim();
+  const msg  = document.getElementById('wMsg').value.trim();
+  const btn  = document.getElementById('wBtn');
+  const btnSpan = btn.querySelector('span');
+  const status  = document.getElementById('wStatus');
+
+  if(!name || !msg){
+    status.className = 'wf-status error';
+    status.textContent = 'Xin nhập tên và lời chúc.';
+    if(!name) document.getElementById('wName').style.borderColor = '#e74c3c';
+    if(!msg)  document.getElementById('wMsg').style.borderColor  = '#e74c3c';
+    setTimeout(() => {
+      document.getElementById('wName').style.borderColor = '';
+      document.getElementById('wMsg').style.borderColor  = '';
+      status.textContent = '';
+    }, 2500);
+    return;
+  }
+
+  btn.disabled = true;
+  btnSpan.textContent = 'Đang gửi...';
+  status.className = 'wf-status';
+  status.textContent = '';
+
+  // Lưu local trước
+  const entry = { name, msg, time: new Date().toISOString() };
+  const local = readLocal();
+  local.push(entry);
+  writeLocal(local);
+
+  // Hiển thị ngay lên list
+  if(wishesList.querySelector('.wl-empty') || wishesList.querySelector('.wl-loading')){
+    wishesList.innerHTML = '';
+  }
+  const d = document.createElement('div');
+  d.className = 'wc';
+  d.innerHTML = '<div class="wc-text">' + esc(msg) + '</div>'
+              + '<div class="wc-author">' + esc(name) + '</div>';
+  wishesList.insertBefore(d, wishesList.firstChild);
+
+  // Gửi lên Sheets
+  if(GS_URL){
+    fetch(GS_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:name, msg:msg})
+    }).catch(() => {});
+  }
+
+  document.getElementById('wName').value = '';
+  document.getElementById('wMsg').value  = '';
+  btn.disabled = false;
+  btnSpan.textContent = 'Gửi lời chúc ♥';
+  status.textContent = '✿ Cảm ơn lời chúc của bạn ✿';
+  setTimeout(() => { status.textContent = ''; }, 4000);
+}
+
+/* ───────────────────────────────────
+   7. SMOOTH NAV
+─────────────────────────────────── */
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if(t) t.scrollIntoView({ behavior:'smooth' });
+  });
+});
+</script>
+</body>
+</html>
